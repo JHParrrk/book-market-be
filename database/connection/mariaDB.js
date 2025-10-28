@@ -1,4 +1,4 @@
-// mariadb.js
+// database/connection/mariaDB.js
 // 역할: 데이터베이스 연결을 책임지는 부품
 
 // conn.js 또는 db.js

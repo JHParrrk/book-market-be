@@ -62,7 +62,6 @@ exports.create = async ({ userId, delivery_info, cart_item_ids }) => {
       0
     );
 
-    // [개선] 매직 스트링 대신 상수 사용
     const orderSql = `INSERT INTO orders (user_id, delivery_info, total_price, status) VALUES (?, ?, ?, ?)`;
     const [orderResult] = await conn.query(orderSql, [
       userId,
@@ -74,6 +73,7 @@ exports.create = async ({ userId, delivery_info, cart_item_ids }) => {
 
     await insertOrderDetails(conn, orderId, itemsToOrder);
 
+    // 장바구니에서 주문한 항목 삭제
     const deleteCartSql = `DELETE FROM carts WHERE user_id = ? AND id IN (?)`;
     await conn.query(deleteCartSql, [userId, cart_item_ids]);
 
