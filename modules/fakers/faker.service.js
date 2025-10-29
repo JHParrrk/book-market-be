@@ -1,4 +1,3 @@
-const { faker } = require("@faker-js/faker");
 const bcrypt = require("bcrypt");
 const fakerRepository = require("./faker.repository");
 const { CustomError } = require("../../utils/errorHandler.util");
@@ -6,6 +5,9 @@ const { BAD_REQUEST } = require("../../constants/errors");
 
 // 가짜 사용자 데이터 생성
 exports.generateFakeUsers = async (count) => {
+  // 동적으로 faker 모듈 import
+  const { faker } = await import("@faker-js/faker");
+
   // 유효성 검사
   if (!count || count <= 0) {
     throw new CustomError(
