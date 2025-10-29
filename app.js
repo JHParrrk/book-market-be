@@ -11,6 +11,7 @@ var booksRouter = require("./routes/books");
 var cartsRouter = require("./routes/carts");
 var ordersRouter = require("./routes/orders");
 var categoriesRouter = require("./routes/categories");
+var fakersRouter = require("./routes/fakers");
 
 const errorHandler = require("./middleware/errorHandler.middleware");
 
@@ -39,6 +40,7 @@ app.use("/books", booksRouter);
 app.use("/carts", cartsRouter);
 app.use("/orders", ordersRouter);
 app.use("/categories", categoriesRouter);
+app.use("/fakers", fakersRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
