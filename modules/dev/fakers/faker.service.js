@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const fakerRepository = require("./faker.repository");
-const { CustomError } = require("../../utils/errorHandler.util");
-const { BAD_REQUEST } = require("../../constants/errors");
+const { CustomError } = require("../../../utils/errorHandler.util");
+const { BAD_REQUEST } = require("../../../constants/errors");
 
 // faker 인스턴스 캐싱
 let fakerInstance = null;

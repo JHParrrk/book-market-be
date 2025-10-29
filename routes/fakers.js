@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { body, query } = require("express-validator");
-const fakerController = require("../modules/fakers/faker.controller");
+const fakerController = require("../modules/dev/fakers/faker.controller");
 const { authenticateJWT } = require("../middleware/authorize.middleware");
 const { authorizeAdmin } = require("../middleware/authorizeAdmin.middleware");
 const validate = require("../middleware/validator.middleware");

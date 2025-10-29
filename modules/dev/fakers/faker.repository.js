@@ -1,4 +1,4 @@
-const dbPool = require("../../database/connection/mariaDB");
+const dbPool = require("../../../database/connection/mariaDB");
 
 // DB 쿼리 결과 파싱 유틸리티
 const parseResult = (result) => result[0];

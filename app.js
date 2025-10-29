@@ -40,7 +40,7 @@ app.use("/books", booksRouter);
 app.use("/carts", cartsRouter);
 app.use("/orders", ordersRouter);
 app.use("/categories", categoriesRouter);
-app.use("/fakers", fakersRouter);
+app.use("/dev/fakers", fakersRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
