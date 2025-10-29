@@ -38,12 +38,15 @@ exports.generateFakeUsers = async (count) => {
   // 가짜 사용자 데이터 생성
   const fakeUsers = [];
   for (let i = 0; i < count; i++) {
+    // phone_number는 DB 스키마에서 varchar(20)으로 제한되어 있으므로 20자 이내로 생성
+    const phoneNumber = faker.phone.number().substring(0, 20);
+    
     fakeUsers.push({
       email: faker.internet.email(),
       hashedPassword: hashedPassword,
       name: faker.person.fullName(),
       address: faker.location.streetAddress({ useFullAddress: true }),
-      phone_number: faker.phone.number(),
+      phone_number: phoneNumber,
     });
   }
 
