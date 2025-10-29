@@ -4,23 +4,30 @@ const { BAD_REQUEST } = require("../../constants/errors");
 
 exports.addToCart = async (req, res, next) => {
   try {
-    const { book_id, quantity } = req.body;
+    const items = req.body; // 이제 req.body는 배열입니다.
+    const userId = req.user.id;
 
-    // [강화] 입력값 검증
-    if (!book_id || !quantity || Number(quantity) < 1) {
-      // 이제 CustomError를 정상적으로 사용할 수 있습니다.
+    // 입력값 검증: 배열인지, 각 항목이 유효한지 확인
+    if (!Array.isArray(items) || items.length === 0) {
       throw new CustomError(
         BAD_REQUEST.statusCode,
-        "도서 ID와 1 이상의 수량을 정확히 입력해주세요."
+        "장바구니에 담을 상품 목록을 배열 형태로 전달해야 합니다."
       );
     }
 
-    const userId = req.user.id;
-    await cartService.addToCart({
-      userId,
-      book_id,
-      quantity: Number(quantity),
-    });
+    // 각 항목의 유효성 검사
+    for (const item of items) {
+      if (!item.book_id || !item.quantity || Number(item.quantity) < 1) {
+        throw new CustomError(
+          BAD_REQUEST.statusCode,
+          "각 상품은 book_id와 1 이상의 quantity를 포함해야 합니다."
+        );
+      }
+    }
+
+    // 서비스 로직 호출 시 userId와 items 배열 전체를 전달
+    await cartService.addToCart(userId, items);
+
     res.status(201).json({ message: "장바구니에 상품을 담았습니다." });
   } catch (err) {
     next(err);

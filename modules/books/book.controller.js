@@ -3,19 +3,21 @@
 const bookService = require("./book.service");
 const safeParseInt = require("../../utils/safeParseInt");
 
-// [수정] 도서 검색 (메인 페이지 등)
+/* 도서 검색 (메인 페이지 등) */
 exports.searchBooks = async (req, res, next) => {
   try {
     const { category_id, keyword } = req.query;
     const page = safeParseInt(req.query.page, 1);
     const limit = safeParseInt(req.query.limit, 8);
 
+    // 이제 이 함수는 { books, pagination } 객체를 정상적으로 반환합니다.
     const { books, pagination } = await bookService.searchBooks({
       category_id,
       keyword,
       page,
       limit,
     });
+    // 클라이언트에 도서 목록과 페이지네이션 정보를 함께 응답합니다.
     res.status(200).json({ books, pagination });
   } catch (err) {
     next(err);
@@ -27,28 +29,16 @@ exports.getNewBooks = async (req, res, next) => {
   try {
     const { category_id } = req.query;
     const page = safeParseInt(req.query.page, 1);
-    const limit = safeParseInt(req.query.limit, 4);
+    const limit = safeParseInt(req.query.limit, DEFAULT_NEW_BOOKS_LIMIT);
 
-    const books = await bookService.getNewBooks({
+    // 이제 이 함수는 { books, pagination } 객체를 반환합니다.
+    const { books, pagination } = await bookService.getNewBooks({
       category_id,
       page,
       limit,
     });
-    res.status(200).json({ books });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// [신규] 도서 검색 결과 총 개수 조회 (페이지네이션용)
-exports.getBooksCount = async (req, res, next) => {
-  try {
-    const { category_id, keyword } = req.query;
-    const totalCount = await bookService.getBooksCount({
-      category_id,
-      keyword,
-    });
-    res.status(200).json({ totalCount });
+    // 클라이언트에 도서 목록과 페이지네이션 정보를 함께 응답합니다.
+    res.status(200).json({ books, pagination });
   } catch (err) {
     next(err);
   }

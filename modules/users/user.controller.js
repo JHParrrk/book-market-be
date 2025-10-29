@@ -41,7 +41,13 @@ exports.login = async (req, res, next) => {
       sameSite: "Strict",
     });
 
-    res.status(200).json({ message: "Login successful", accessToken });
+    res
+      .status(200)
+      .json({
+        message: "Login successful",
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      });
   } catch (err) {
     next(err);
   }

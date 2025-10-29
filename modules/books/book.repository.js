@@ -30,7 +30,8 @@ const applyCategoryFilter = (category_id, params) => {
               SELECT id FROM CategoryTree
           )`;
 };
-// [수정] 도서 검색 쿼리
+
+/** 도서 검색 쿼리 */
 exports.searchBooks = async ({
   category_id,
   keyword,
@@ -61,7 +62,7 @@ exports.searchBooks = async ({
   return { books };
 };
 
-// [수정] 신간 도서 조회 쿼리
+/** 신간 도서 조회 쿼리 */
 exports.findNewBooks = async ({
   category_id,
   page = DEFAULT_PAGE,
@@ -97,6 +98,22 @@ exports.countBooks = async ({ category_id, keyword }) => {
     const searchTerm = `%${keyword}%`;
     params.push(searchTerm, searchTerm, searchTerm);
   }
+
+  const [result] = await dbPool.query(sql, params);
+  return result[0].totalCount;
+};
+
+// 신간 도서 총 개수 조회 쿼리
+exports.countNewBooks = async ({ category_id }) => {
+  let sql = `
+    SELECT COUNT(*) as totalCount 
+    FROM books b 
+    WHERE b.deleted_at IS NULL
+      AND b.published_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()
+  `;
+  const params = [];
+
+  sql += applyCategoryFilter(category_id, params);
 
   const [result] = await dbPool.query(sql, params);
   return result[0].totalCount;

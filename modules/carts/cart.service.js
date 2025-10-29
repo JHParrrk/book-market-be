@@ -4,7 +4,11 @@ const cartRepository = require("./cart.repository");
 const { NOT_FOUND } = require("../../constants/errors");
 const { CustomError } = require("../../utils/errorHandler.util");
 
-exports.addToCart = (cartData) => cartRepository.upsertCartItem(cartData);
+// 여러 상품을 장바구니에 추가하는 로직
+exports.addToCart = (userId, items) => {
+  // Repository에 userId와 items를 그대로 전달
+  return cartRepository.upsertCartItems(userId, items);
+};
 
 exports.getCartItems = (userId) => cartRepository.findCartItemsByUserId(userId);
 
