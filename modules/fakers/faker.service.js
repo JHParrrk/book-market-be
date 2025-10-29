@@ -3,10 +3,17 @@ const fakerRepository = require("./faker.repository");
 const { CustomError } = require("../../utils/errorHandler.util");
 const { BAD_REQUEST } = require("../../constants/errors");
 
+// faker 인스턴스 캐싱
+let fakerInstance = null;
+
 // 가짜 사용자 데이터 생성
 exports.generateFakeUsers = async (count) => {
-  // 동적으로 faker 모듈 import
-  const { faker } = await import("@faker-js/faker");
+  // faker를 한 번만 import하고 캐싱
+  if (!fakerInstance) {
+    const module = await import("@faker-js/faker");
+    fakerInstance = module.faker;
+  }
+  const faker = fakerInstance;
 
   // 유효성 검사
   if (!count || count <= 0) {
