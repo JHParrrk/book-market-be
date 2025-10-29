@@ -7,7 +7,6 @@
     "test": "jest --detectOpenHandles --forceExit"
   },
   "dependencies": {
-    "@faker-js/faker": "^10.1.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
@@ -21,6 +20,7 @@
     "mysql2": "^3.15.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "jest": "^30.2.0",
     "supertest": "^7.1.4"
   }
