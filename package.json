@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "cross-env NODE_ENV=sub node ./bin/www",
+    "main": "cross-env NODE_ENV=main node ./bin/www",
     "test": "jest --detectOpenHandles --forceExit"
   },
   "dependencies": {
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.1.0",
+    "cross-env": "^10.1.0",
     "jest": "^30.2.0",
     "supertest": "^7.1.4"
   }
