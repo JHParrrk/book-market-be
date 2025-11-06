@@ -29,7 +29,7 @@ exports.getNewBooks = async (req, res, next) => {
   try {
     const { category_id } = req.query;
     const page = safeParseInt(req.query.page, 1);
-    const limit = safeParseInt(req.query.limit, DEFAULT_NEW_BOOKS_LIMIT);
+    const limit = safeParseInt(req.query.limit, 4);
 
     // 이제 이 함수는 { books, pagination } 객체를 반환합니다.
     const { books, pagination } = await bookService.getNewBooks({
