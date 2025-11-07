@@ -28,12 +28,15 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const user = await userService.login(email, password);
+    const ipAddress = req.ip;
+    const userAgent = req.headers["user-agent"];
 
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-
-    await userService.saveRefreshToken(user.id, refreshToken);
+    const { accessToken, refreshToken, user } = await userService.login({
+      email,
+      password,
+      ipAddress,
+      userAgent,
+    });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -41,13 +44,7 @@ exports.login = async (req, res, next) => {
       sameSite: "Strict",
     });
 
-    res
-      .status(200)
-      .json({
-        message: "Login successful",
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      });
+    res.status(200).json({ message: "Login successful", accessToken });
   } catch (err) {
     next(err);
   }
@@ -158,9 +155,8 @@ exports.deleteUser = async (req, res, next) => {
 exports.logout = async (req, res, next) => {
   try {
     const { refreshToken } = req.cookies;
-    if (refreshToken) {
-      await userService.deleteRefreshToken(refreshToken);
-    }
+    await userService.logout(refreshToken); // 서비스에 토큰 전달
+
     res.clearCookie("refreshToken");
     res.status(200).json({ message: "Logout successful" });
   } catch (err) {
@@ -171,15 +167,31 @@ exports.logout = async (req, res, next) => {
 // 액세스 토큰 재발급
 exports.refreshAccessToken = async (req, res, next) => {
   try {
-    const { refreshToken } = req.cookies;
-    if (!refreshToken) {
+    const { refreshToken: refreshTokenString } = req.cookies;
+    const ipAddress = req.ip;
+    const userAgent = req.headers["user-agent"];
+
+    if (!refreshTokenString) {
       throw new CustomError(
         REFRESH_TOKEN_REQUIRED.statusCode,
         REFRESH_TOKEN_REQUIRED.message
       );
     }
-    const newAccessToken = await userService.refreshAccessToken(refreshToken);
-    res.status(200).json({ accessToken: newAccessToken });
+
+    const { accessToken, refreshToken: newRefreshToken } =
+      await userService.refreshAccessToken({
+        refreshTokenString,
+        ipAddress,
+        userAgent,
+      });
+
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+    });
+
+    res.status(200).json({ accessToken });
   } catch (err) {
     next(err);
   }

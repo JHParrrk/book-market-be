@@ -359,6 +359,17 @@ Content-Type: application/json
 }
 ```
 
+#### **관리자 (Admin) - `인가(Authorization)` 적용 만들어야 할 것들**
+
+- **도서 등록** `ADMIN`
+  `POST /admin/books`
+- **도서 정보 수정** `ADMIN`
+  `PUT /admin/books/:bookId`
+- **도서 삭제** `ADMIN`
+  `DELETE /admin/books/:bookId`
+- **카테고리 추가/수정/삭제** `ADMIN`
+  `POST /admin/categories`, `PUT /admin/categories/:id`, `DELETE /admin/categories/:id`
+
 ## **데이터베이스 스키마**
 
 애플리케이션은 다음과 같은 주요 테이블을 사용합니다:
