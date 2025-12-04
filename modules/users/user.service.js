@@ -16,7 +16,7 @@ const {
 const REFRESH_TOKEN_EXPIRY_DAYS = 7;
 
 // 회원가입
-exports.register = async ({ email, password, name, address, phone_number }) => {
+exports.signup = async ({ email, password, name, address, phone_number }) => {
   const existingUser = await userRepository.findUserByEmail(email);
   if (existingUser) {
     throw new CustomError(

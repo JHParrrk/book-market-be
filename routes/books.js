@@ -10,9 +10,6 @@ const {
 // [신규] 도서 검색 (검색어와 카테고리를 기반으로 도서 목록 조회)
 router.get("/search", bookController.searchBooks);
 
-// [신규] 신간 도서 조회 (카테고리 기반으로 4개의 신간 출력)
-router.get("/new", bookController.getNewBooks);
-
 // 도서 목록 조회 (전체 도서 목록)
 router.get("/", bookController.searchBooks); // 기존 getBooks를 searchBooks로 대체
 

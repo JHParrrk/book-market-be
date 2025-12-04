@@ -23,27 +23,6 @@ exports.searchBooks = async (filters) => {
   return { books, pagination };
 };
 
-// [수정] 신간 도서 조회 로직: 페이지네이션 적용
-exports.getNewBooks = async (filters) => {
-  const { page, limit } = filters;
-
-  // 1. 신간 도서 목록과 전체 개수를 동시에 조회
-  const [books, totalCount] = await Promise.all([
-    bookRepository.findNewBooks(filters),
-    bookRepository.countNewBooks(filters), // 신간 도서 개수 조회 함수 호출
-  ]);
-
-  // 2. 페이지네이션 객체 생성
-  const pagination = {
-    currentPage: parseInt(page),
-    totalCount: totalCount,
-    totalPages: Math.ceil(totalCount / limit),
-  };
-
-  // 3. 도서 목록과 페이지네이션 정보를 함께 반환
-  return { books, pagination };
-};
-
 // [수정] 도서 상세 조회 및 에러 처리 개선
 exports.getBookById = async (bookId, userId) => {
   const book = await bookRepository.findBookWithDetailById(bookId, userId);

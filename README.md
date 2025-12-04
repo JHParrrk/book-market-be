@@ -127,7 +127,7 @@ npm test
 #### **신규 사용자 등록**
 
 ```http
-POST /users/register
+POST /users/signup
 Content-Type: application/json
 
 {

@@ -35,6 +35,7 @@ const applyCategoryFilter = (category_id, params) => {
 exports.searchBooks = async ({
   category_id,
   keyword,
+  isNew,
   page = DEFAULT_PAGE,
   limit = DEFAULT_LIMIT,
 }) => {
@@ -45,6 +46,10 @@ exports.searchBooks = async ({
     WHERE b.deleted_at IS NULL
   `;
   const params = [];
+
+  if (isNew) {
+    sql += ` AND b.published_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()`;
+  }
 
   sql += applyCategoryFilter(category_id, params);
 
@@ -62,34 +67,14 @@ exports.searchBooks = async ({
   return { books };
 };
 
-/** 신간 도서 조회 쿼리 */
-exports.findNewBooks = async ({
-  category_id,
-  page = DEFAULT_PAGE,
-  limit = DEFAULT_NEW_BOOKS_LIMIT,
-}) => {
-  let sql = `
-    SELECT id, title, author, image_url, price, summary, published_date
-    FROM books b
-    WHERE b.deleted_at IS NULL
-      AND b.published_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()
-  `;
-  const params = [];
-
-  sql += applyCategoryFilter(category_id, params);
-
-  const offset = (page - 1) * limit;
-  sql += ` ORDER BY published_date DESC LIMIT ? OFFSET ?`;
-  params.push(limit, offset);
-
-  const [books] = await dbPool.query(sql, params);
-  return books;
-};
-
 // [수정] 도서 총 개수 조회 쿼리
-exports.countBooks = async ({ category_id, keyword }) => {
+exports.countBooks = async ({ category_id, keyword, isNew }) => {
   let sql = `SELECT COUNT(*) as totalCount FROM books b WHERE b.deleted_at IS NULL`;
   const params = [];
+
+  if (isNew) {
+    sql += ` AND b.published_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()`;
+  }
 
   sql += applyCategoryFilter(category_id, params);
 
@@ -98,22 +83,6 @@ exports.countBooks = async ({ category_id, keyword }) => {
     const searchTerm = `%${keyword}%`;
     params.push(searchTerm, searchTerm, searchTerm);
   }
-
-  const [result] = await dbPool.query(sql, params);
-  return result[0].totalCount;
-};
-
-// 신간 도서 총 개수 조회 쿼리
-exports.countNewBooks = async ({ category_id }) => {
-  let sql = `
-    SELECT COUNT(*) as totalCount 
-    FROM books b 
-    WHERE b.deleted_at IS NULL
-      AND b.published_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()
-  `;
-  const params = [];
-
-  sql += applyCategoryFilter(category_id, params);
 
   const [result] = await dbPool.query(sql, params);
   return result[0].totalCount;

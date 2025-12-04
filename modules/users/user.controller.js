@@ -13,9 +13,9 @@ const {
 } = require("../../constants/errors");
 
 // 회원가입
-exports.register = async (req, res, next) => {
+exports.signup = async (req, res, next) => {
   try {
-    const newUser = await userService.register(req.body);
+    const newUser = await userService.signup(req.body);
     res
       .status(201)
       .json({ message: "User registered successfully", userId: newUser.id });

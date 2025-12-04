@@ -9,7 +9,7 @@ const validate = require("../middleware/validator.middleware");
 // --- 인증이 필요 없는 라우트 ---
 // 회원가입
 router.post(
-  "/register",
+  "/signup",
   [
     body("email").isEmail().withMessage("유효한 이메일 주소를 입력하세요."),
     body("password")
@@ -18,7 +18,7 @@ router.post(
     body("name").notEmpty().withMessage("이름을 입력하세요."),
     validate,
   ],
-  userController.register
+  userController.signup
 );
 
 // 로그인

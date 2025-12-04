@@ -5,11 +5,13 @@
   "scripts": {
     "start": "cross-env NODE_ENV=sub node ./bin/www",
     "main": "cross-env NODE_ENV=main node ./bin/www",
-    "test": "jest --detectOpenHandles --forceExit"
+    "test": "jest --detectOpenHandles --forceExit",
+    "dev": "nodemon ./bin/www"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
     "debug": "~2.6.9",
     "dotenv": "^17.2.3",
     "express": "~4.16.1",
@@ -24,6 +26,7 @@
     "@faker-js/faker": "^10.1.0",
     "cross-env": "^10.1.0",
     "jest": "^30.2.0",
+    "nodemon": "^3.1.11",
     "supertest": "^7.1.4"
   }
 }
