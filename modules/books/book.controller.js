@@ -25,6 +25,24 @@ exports.searchBooks = async (req, res, next) => {
   }
 };
 
+// 베스트 도서 조회
+exports.getBestBooks = async (req, res, next) => {
+  try {
+    const { category_id } = req.query;
+    const page = safeParseInt(req.query.page, 1);
+    const limit = safeParseInt(req.query.limit, 8);
+
+    const { books, pagination } = await bookService.getBestBooks({
+      category_id,
+      page,
+      limit,
+    });
+    res.status(200).json({ books, pagination });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // 도서 상세 조회
 exports.getBookById = async (req, res, next) => {
   try {

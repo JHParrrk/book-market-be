@@ -10,6 +10,7 @@ var usersRouter = require("./routes/users");
 var booksRouter = require("./routes/books");
 var cartsRouter = require("./routes/carts");
 var ordersRouter = require("./routes/orders");
+var reviewsRouter = require("./routes/reviews");
 var categoriesRouter = require("./routes/categories");
 var fakersRouter = require("./routes/fakers");
 
@@ -48,6 +49,7 @@ app.use("/users", usersRouter);
 app.use("/books", booksRouter);
 app.use("/carts", cartsRouter);
 app.use("/orders", ordersRouter);
+app.use("/reviews", reviewsRouter);
 app.use("/categories", categoriesRouter);
 app.use("/dev/fakers", fakersRouter);
 

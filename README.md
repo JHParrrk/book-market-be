@@ -1,5 +1,28 @@
 # **Book Market - Express REST API**
 
+📋 MariaDB Docker 배포 요약
+
+1. 기본 개념
+
+Docker: 내 컴퓨터(Windows) 환경과 분리된 '독립된 방(컨테이너)'을 만들고 그 안에 프로그램을 실행하는 방식입니다. 윈도우 설정이 지저분해지지 않는다는 장점이 있습니다.
+docker desktop 설치 후
+
+이미지: MariaDB 실행에 필요한 모든 파일이 들어있는 '설치 파일' 묶음입니다.
+
+2. 실행 프로세스 (PowerShell 기준)
+
+설치 파일 가져오기: docker pull mariadb (최신 이미지 다운로드)
+
+방 만들고 실행하기: docker run 명령어로 컨테이너 생성
+
+-p 3306:3306: 윈도우와 도커 내부의 통로 연결
+
+-e MYSQL_ROOT_PASSWORD=root: 관리자 비밀번호 설정
+
+내부 접속: docker exec -it mariadb /bin/bash (실행 중인 방 안으로 입장)
+
+DB 로그인: mysql -u root -p 입력 후 설정한 비밀번호로 접속
+
 Node.js, Express, MariaDB로 구축된 모든 기능을 갖춘 온라인 서점 REST API입니다. 이 애플리케이션은 사용자 인증, 도서 관리, 장바구니, 주문, 리뷰 등 포괄적인 온라인 서점 기능을 제공합니다.
 
 ## **주요 기능**
@@ -81,7 +104,6 @@ Node.js, Express, MariaDB로 구축된 모든 기능을 갖춘 온라인 서점 
     ```
 
 3.  데이터베이스를 설정합니다:
-
     - `bookstore`라는 이름의 MariaDB/MySQL 데이터베이스를 생성합니다.
     - `database.ddl.txt` 파일에 있는 SQL 스키마를 실행합니다.
 

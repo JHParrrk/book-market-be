@@ -1,6 +1,22 @@
 const reviewService = require("./review.service");
 const safeParseInt = require("../../utils/safeParseInt");
 
+// [신규] 전체 리뷰 목록 조회
+exports.getAllReviews = async (req, res, next) => {
+  try {
+    const page = safeParseInt(req.query.page, 1);
+    const limit = safeParseInt(req.query.limit, 4); // 기본값 4
+
+    const { reviews, pagination } = await reviewService.getAllReviews({
+      page,
+      limit,
+    });
+    res.status(200).json({ reviews, pagination });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // [신규] 도서별 리뷰 목록 조회
 exports.getReviewsByBook = async (req, res, next) => {
   try {

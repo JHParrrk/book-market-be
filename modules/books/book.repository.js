@@ -64,7 +64,31 @@ exports.searchBooks = async ({
   params.push(limit, offset);
 
   const [books] = await dbPool.query(sql, params);
-  return { books };
+  return books;
+};
+
+/** 베스트 도서 조회 쿼리 (좋아요 순) */
+exports.findBestBooks = async ({
+  category_id,
+  page = DEFAULT_PAGE,
+  limit = DEFAULT_LIMIT,
+}) => {
+  let sql = `
+    SELECT b.id, b.title, b.author, b.image_url, b.price, b.summary, b.published_date,
+           (SELECT COUNT(*) FROM book_likes bl WHERE bl.book_id = b.id) AS likes
+    FROM books b
+    WHERE b.deleted_at IS NULL
+  `;
+  const params = [];
+
+  sql += applyCategoryFilter(category_id, params);
+
+  const offset = (page - 1) * limit;
+  sql += ` ORDER BY likes DESC, b.title ASC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
+
+  const [books] = await dbPool.query(sql, params);
+  return books;
 };
 
 // [수정] 도서 총 개수 조회 쿼리

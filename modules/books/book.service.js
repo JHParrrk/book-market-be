@@ -7,7 +7,7 @@ exports.searchBooks = async (filters) => {
   const { page, limit } = filters;
 
   // 1. 도서 목록과 전체 개수를 동시에 조회 (성능 최적화)
-  const [{ books }, totalCount] = await Promise.all([
+  const [books, totalCount] = await Promise.all([
     bookRepository.searchBooks(filters),
     bookRepository.countBooks(filters),
   ]);
@@ -20,6 +20,24 @@ exports.searchBooks = async (filters) => {
   };
 
   // 3. 도서 목록과 페이지네이션 정보를 함께 반환
+  return { books, pagination };
+};
+
+// 베스트 도서 조회 로직
+exports.getBestBooks = async (filters) => {
+  const { page, limit } = filters;
+
+  const [books, totalCount] = await Promise.all([
+    bookRepository.findBestBooks(filters),
+    bookRepository.countBooks(filters),
+  ]);
+
+  const pagination = {
+    currentPage: parseInt(page),
+    totalCount: totalCount,
+    totalPages: Math.ceil(totalCount / limit),
+  };
+
   return { books, pagination };
 };
 

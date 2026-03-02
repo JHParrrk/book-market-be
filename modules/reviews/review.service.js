@@ -6,6 +6,22 @@ const { CustomError } = require("../../utils/errorHandler.util");
 exports.getReviewsByBook = (params) =>
   reviewRepository.findReviewsByBookId(params);
 
+// [신규] 전체 리뷰 목록 조회 (페이지네이션 포함)
+exports.getAllReviews = async ({ page, limit }) => {
+  const [reviews, totalCount] = await Promise.all([
+    reviewRepository.findAllReviews({ page, limit }),
+    reviewRepository.countAllReviews(),
+  ]);
+
+  const pagination = {
+    currentPage: parseInt(page),
+    totalCount: totalCount,
+    totalPages: Math.ceil(totalCount / limit),
+  };
+
+  return { reviews, pagination };
+};
+
 exports.addReview = async (reviewData) => {
   const hasPurchased = await reviewRepository.checkPurchaseHistory(
     reviewData.userId,

@@ -3,6 +3,9 @@ const router = express.Router();
 const reviewController = require("../modules/reviews/review.controller");
 const { authenticateJWT } = require("../middleware/authorize.middleware");
 
+// [신규] 전체 리뷰 목록 조회 (좋아요 순)
+router.get("/", reviewController.getAllReviews);
+
 // 리뷰 수정 (로그인 필수)
 router.put("/:reviewId", authenticateJWT, reviewController.updateReview);
 

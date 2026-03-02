@@ -13,6 +13,9 @@ router.get("/search", bookController.searchBooks);
 // 도서 목록 조회 (전체 도서 목록)
 router.get("/", bookController.searchBooks); // 기존 getBooks를 searchBooks로 대체
 
+// 베스트 도서 목록 조회
+router.get("/best", bookController.getBestBooks);
+
 // 도서 상세 조회
 router.get("/:bookId", authenticateIfPresent, bookController.getBookById);
 

@@ -20,6 +20,33 @@ exports.findReviewsByBookId = async ({ bookId, userId, page, limit }) => {
   return reviews;
 };
 
+// [신규] 전체 리뷰 목록 조회 (좋아요 순)
+exports.findAllReviews = async ({ page, limit }) => {
+  const offset = (page - 1) * limit;
+  const sql = `
+    SELECT 
+        r.id, r.content, r.rating, r.created_at,
+        u.name AS author_name,
+        b.title AS book_title,
+        b.id AS book_id,
+        (SELECT COUNT(*) FROM review_likes rl WHERE rl.review_id = r.id) AS likes_count
+    FROM reviews r
+    JOIN users u ON r.user_id = u.id
+    JOIN books b ON r.book_id = b.id
+    ORDER BY likes_count DESC, r.created_at DESC
+    LIMIT ? OFFSET ?
+  `;
+  const [reviews] = await dbPool.query(sql, [limit, offset]);
+  return reviews;
+};
+
+// [신규] 전체 리뷰 개수 조회
+exports.countAllReviews = async () => {
+  const sql = `SELECT COUNT(*) as totalCount FROM reviews`;
+  const [result] = await dbPool.query(sql);
+  return result[0].totalCount;
+};
+
 // [신규] 리뷰 좋아요 토글
 exports.toggleLike = async (reviewId, userId) => {
   const checkSql =
