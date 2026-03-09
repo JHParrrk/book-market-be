@@ -61,4 +61,30 @@ app.use(function (req, res, next) {
 // error handler
 app.use(errorHandler);
 
+// Node-cron을 통한 만료 토큰 주기적 청소 설정
+const cron = require("node-cron");
+const dbPool = require("./database/connection/mariaDB");
+
+cron.schedule("0 0 * * *", async () => {
+  let conn;
+  try {
+    conn = await dbPool.getConnection();
+    console.log(
+      `[${new Date().toISOString()}] 만료된 Refresh Token 청소 시작...`,
+    );
+    const sql = "DELETE FROM refresh_tokens WHERE expires_at <= NOW()";
+    const result = await conn.query(sql);
+    console.log(
+      `[${new Date().toISOString()}] 만료된 Refresh Token 청소 완료. 영향을 받은 행: ${result.affectedRows || result[0]?.affectedRows || 0}`,
+    );
+  } catch (err) {
+    console.error(
+      `[${new Date().toISOString()}] Refresh Token 청소 중 에러 발생:`,
+      err,
+    );
+  } finally {
+    if (conn) conn.release();
+  }
+});
+
 module.exports = app;
