@@ -12,7 +12,7 @@ function authenticateJWT(req, res, next) {
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return next(
-      new CustomError(UNAUTHORIZED.statusCode, "Access token is required.")
+      new CustomError(UNAUTHORIZED.statusCode, "Access token is required."),
     );
   }
 
@@ -26,7 +26,7 @@ function authenticateJWT(req, res, next) {
   } catch (error) {
     // 토큰 만료 또는 형식 오류
     return next(
-      new CustomError(FORBIDDEN.statusCode, "Invalid or expired token.")
+      new CustomError(UNAUTHORIZED.statusCode, "Invalid or expired token."),
     );
   }
 }
