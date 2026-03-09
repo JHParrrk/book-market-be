@@ -21,10 +21,10 @@ var app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:4000", // 프론트엔드 출처
+    origin: "http://localhost:5173", // 프론트엔드 출처
     methods: ["GET", "POST", "PUT", "DELETE"], // 허용할 HTTP 메서드
     credentials: true, // 쿠키 허용 (옵션)
-  })
+  }),
 );
 
 // view engine setup
