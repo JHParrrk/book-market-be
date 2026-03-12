@@ -1,6 +1,6 @@
 # **Book Market - Express REST API**
 
-AI 전문 시니어의 분석과 설계 철학이 담긴 지능형 온라인 서점 백엔드 서비스입니다.
+도메인 특성을 고려한 DB 정규화, 계층 쿼리 및 이중 토큰 인증 체계를 통한 보안/성능 최적화 철학이 담긴 지능형 온라인 서점 백엔드 서비스입니다.
 
 [![Node.js](https://img.shields.io/badge/Node.js-v14%2B-green)](https://nodejs.org/)
 [![Express.js](https://img.shields.io/badge/Express.js-4.16.1-blue)](https://expressjs.com/)
