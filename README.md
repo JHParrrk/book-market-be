@@ -103,7 +103,219 @@ npm test
 
 ## 📄 API Reference
 
-기존 API 상세 정보는 [README_OLD.md](README_OLD.md)의 API 문서 섹션을 참고하세요.
+### **Authentication**
+
+#### **Sign Up**
+
+```http
+POST /users/signup
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123",
+  "name": "John Doe"
+}
+```
+
+#### **Login**
+
+```http
+POST /users/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+#### **Refresh Token**
+
+```http
+POST /users/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": "your_refresh_token"
+}
+```
+
+#### **Logout**
+
+```http
+POST /users/logout
+Authorization: Bearer <access_token>
+```
+
+### **Books**
+
+#### **Get All Books**
+
+```http
+GET /books?search=query&categoryId=1&page=1&limit=8
+```
+
+#### **Get New Books**
+
+```http
+GET /books/new?categoryId=1&limit=4
+```
+
+#### **Get Book Details**
+
+```http
+GET /books/:bookId
+Authorization: Bearer <access_token> (optional)
+```
+
+#### **Toggle Book Like**
+
+```http
+POST /books/:bookId/like
+Authorization: Bearer <access_token>
+```
+
+### **Categories**
+
+#### **Get All Categories**
+
+```http
+GET /categories
+```
+
+### **Shopping Cart**
+
+#### **Add to Cart**
+
+```http
+POST /carts
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "bookId": 1,
+  "quantity": 2
+}
+```
+
+#### **Get Cart Items**
+
+```http
+GET /carts
+Authorization: Bearer <access_token>
+```
+
+#### **Update Cart Item Quantity**
+
+```http
+PUT /carts/:cartItemId
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "quantity": 3
+}
+```
+
+#### **Delete Cart Item**
+
+```http
+DELETE /carts/:cartItemId
+Authorization: Bearer <access_token>
+```
+
+### **Orders**
+
+#### **Create Order**
+
+```http
+POST /orders
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "deliveryInfo": {
+    "address": "123 Main St",
+    "phone": "010-1234-5678"
+  },
+  "cartItemIds": [1, 2, 3]
+}
+```
+
+#### **Get My Orders**
+
+```http
+GET /orders
+Authorization: Bearer <access_token>
+```
+
+#### **Get Order Details**
+
+```http
+GET /orders/:orderId
+Authorization: Bearer <access_token>
+```
+
+#### **Update Order Status (Admin Only)**
+
+```http
+PUT /orders/:orderId/status
+Authorization: Bearer <admin_access_token>
+Content-Type: application/json
+
+{
+  "status": "shipped"
+}
+```
+
+### **Reviews**
+
+#### **Get Reviews for a Book**
+
+```http
+GET /books/:bookId/reviews
+```
+
+#### **Add Review**
+
+```http
+POST /books/:bookId/reviews
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "content": "Great book!"
+}
+```
+
+#### **Update Review**
+
+```http
+PUT /books/:bookId/reviews/:reviewId
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "rating": 4,
+  "content": "Updated review"
+}
+```
+
+#### **Delete Review**
+
+```http
+DELETE /books/:bookId/reviews/:reviewId
+Authorization: Bearer <access_token>
+```
+
+#### **Toggle Review Like**
+
+```http
+POST /books/:bookId/reviews/:reviewId/like
+Authorization: Bearer <access_token>
+```
 
 ## 📄 라이선스 (License)
 
