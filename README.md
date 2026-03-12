@@ -1,503 +1,110 @@
 # **Book Market - Express REST API**
 
-📋 MariaDB Docker 배포 요약
+AI 전문 시니어의 분석과 설계 철학이 담긴 지능형 온라인 서점 백엔드 서비스입니다.
 
-1. 기본 개념
+[![Node.js](https://img.shields.io/badge/Node.js-v14%2B-green)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/Express.js-4.16.1-blue)](https://expressjs.com/)
+[![MariaDB](https://img.shields.io/badge/MariaDB-10.x%2B-003545)](https://mariadb.org/)
+[![Testing](https://img.shields.io/badge/Testing-Jest-C21325)](https://jestjs.io/)
 
-Docker: 내 컴퓨터(Windows) 환경과 분리된 '독립된 방(컨테이너)'을 만들고 그 안에 프로그램을 실행하는 방식입니다. 윈도우 설정이 지저분해지지 않는다는 장점이 있습니다.
-docker desktop 설치 후
+---
 
-이미지: MariaDB 실행에 필요한 모든 파일이 들어있는 '설치 파일' 묶음입니다.
+## 🏗️ 프로젝트 개요 (Project Overview)
 
-2. 실행 프로세스 (PowerShell 기준)
+본 프로젝트는 **계층 주도 설계(Layered Architecture)**와 **도메인 중심의 최적화**를 통해 구축된 온라인 서점 시스템입니다. 단순한 CRUD를 넘어, 대용량 데이터 환경에서의 성능 가용성과 보안을 고려한 설계 결정을 포함하고 있습니다.
 
-설치 파일 가져오기: docker pull mariadb (최신 이미지 다운로드)
+## 🎯 설계 목표 및 핵심 가치
 
-방 만들고 실행하기: docker run 명령어로 컨테이너 생성
+- **보안 중심 인증**: 이중 토큰 체계(Access/Refresh)를 통한 보안 강화 및 세션 관리.
+- **조회 성능 최적화**: 무한 계층 구조의 카테고리 검색 최적화 및 데이터 파티셔닝.
+- **데이터 무결성**: 주문 시점의 스냅샷 저장을 통한 과거 이력 보존.
+- **유지보수성**: Controller-Service-Repository 패턴을 통한 비즈니스 로직의 순수성 유지.
 
--p 3306:3306: 윈도우와 도커 내부의 통로 연결
+## ✨ 핵심 기술적 차별점 (Core Engineering Points)
 
--e MYSQL_ROOT_PASSWORD=root: 관리자 비밀번호 설정
+### 🧠 1. 계층형 카테고리 검색 최적화 (Recursive CTE)
 
-내부 접속: docker exec -it mariadb /bin/bash (실행 중인 방 안으로 입장)
+- **Problem**: 무한 뎁스(Depth) 카테고리 구조에서 하위 도서 전체를 찾기 위한 반복적인 DB 호출(N+1 문제) 발생.
+- **Solution**: MariaDB의 **재귀 CTE(`WITH RECURSIVE`)**를 활용하여 단일 쿼리로 모든 하위 카테고리를 탐색, DB 호출 횟수를 획기적으로 절감하고 응답 속도를 개선했습니다.
 
-DB 로그인: mysql -u root -p 입력 후 설정한 비밀번호로 접속
+### 🔐 2. 이중 토큰 인증 전략 및 자동화된 세션 관리
 
-Node.js, Express, MariaDB로 구축된 모든 기능을 갖춘 온라인 서점 REST API입니다. 이 애플리케이션은 사용자 인증, 도서 관리, 장바구니, 주문, 리뷰 등 포괄적인 온라인 서점 기능을 제공합니다.
+- **Structure**: 단기 만료 **Access Token**과 장기 만료 **Refresh Token** 체계를 도입했습니다.
+- **Security**: 서버 DB(`refresh_tokens`)에 화이트리스트 기반 검증을 수행하여 유출 의심 시 즉시 무효화가 가능합니다.
+- **Automation**: **Node-cron** 기반 배치 스크립트를 통해 만료된 토큰을 정기적으로 삭제하여 DB 리소스 낭비를 방지했습니다.
 
-## **주요 기능**
+### 📊 3. 읽기 성능을 위한 수직 파티셔닝 (Vertical Partitioning)
 
-### **사용자 관리**
+- **Problem**: 도서 목록 조회 시 대용량 텍스트 컬럼(설명, 목차 등)으로 인한 불필요한 I/O 부하 발생.
+- **Solution**: 핵심 정보(`books`)와 상세 정보(`book_details`)를 1:1 관계로 분리하여 리스트 조회 시 페이로드를 축소하고 스캔 성능을 극대화했습니다.
 
-- JWT를 이용한 사용자 회원가입 및 인증
-- 역할 기반 접근 제어 (관리자/일반 회원)
-- 토큰 리프레시 메커니즘
-- `bcrypt`를 이용한 안전한 비밀번호 해싱
-- 사용자 프로필 관리
+### 🛡️ 4. EXISTS 연산 기반의 인터랙션 쿼리 튜닝
 
-### **도서 관리**
+- **Optimization**: '좋아요' 여부 판별 시 `LEFT JOIN` 대신 `EXISTS` 서브쿼리를 사용하여 첫 번째 매칭 발견 즉시 스캔을 중단하도록 최적화했습니다.
 
-- 도서 조회 및 검색
-- 카테고리별 필터링
-- 페이지네이션(페이지 나누기) 지원
-- 신간 도서 섹션
-- 책 상세 정보 (설명, ISBN, 목차 등)
-- 도서 '좋아요' 기능
+## 🛠 기술 스택 (Tech Stack)
 
-### **장바구니**
+### **Backend & Infrastructure**
 
-- 장바구니에 도서 추가
-- 수량 업데이트
-- 상품 삭제
-- 도서 상세 정보가 포함된 장바구니 조회
+- **Framework & Auth**: Node.js, Express.js, JWT (Access/Refresh Token)
+- **Database**: MariaDB (InnoDB)
+- **Infrastructure**: Node-cron (Batch Jobs), Docker (Mariadb)
+- **Testing**: Jest, Supertest
 
-### **주문 관리**
-
-- 장바구니 상품으로 주문 생성
-- 주문 내역 조회
-- 주문 상태 추적이 포함된 주문 상세 정보
-- 관리자의 주문 상태 관리 기능
-
-### **리뷰 시스템**
-
-- 리뷰 생성, 조회, 수정, 삭제 (CRUD)
-- 별점 시스템 (1~5점)
-- 리뷰 '좋아요' 기능
-- 사용자별 리뷰 작성 제한 (책 한 권당 리뷰 하나)
-
-### **카테고리**
-
-- 계층적 카테고리 구조
-- 부모-자식 관계의 카테고리
-- 카테고리 기반 도서 필터링
-
-## **기술 스택**
-
-- **런타임**: Node.js
-- **프레임워크**: Express.js 4.16.1
-- **데이터베이스**: MariaDB/MySQL
-- **인증**: JSON Web Tokens (JWT)
-- **비밀번호 보안**: bcrypt
-- **유효성 검사**: express-validator
-- **테스팅**: Jest, Supertest
-- **환경 변수**: dotenv
-
-## **사전 요구사항**
-
-- Node.js (v14 이상)
-- MariaDB 또는 MySQL (v10.x 이상)
-- npm 또는 yarn
-
-## **설치 방법**
-
-1.  리포지토리를 클론합니다:
-
-    ```bash
-    git clone https://github.com/JHParrrk/book_market.git
-    cd book_market
-    ```
-
-2.  의존성을 설치합니다:
-
-    ```bash
-    npm install
-    ```
-
-3.  데이터베이스를 설정합니다:
-    - `bookstore`라는 이름의 MariaDB/MySQL 데이터베이스를 생성합니다.
-    - `database.ddl.txt` 파일에 있는 SQL 스키마를 실행합니다.
-
-4.  프로젝트 최상위 디렉토리에 `.env` 파일을 생성합니다:
-
-    ```env
-    PORT=3000
-    JWT_SECRET=your_jwt_secret_key
-    JWT_REFRESH_SECRET=your_jwt_refresh_secret_key
-    JWT_EXPIRES_IN=1h
-    JWT_REFRESH_EXPIRES_IN=7d
-    ```
-
-5.  필요하다면 `database/connection/mariaDB.js` 파일에서 데이터베이스 연결 정보를 수정합니다:
-    ```javascript
-    host: "localhost",
-    port: 3306,
-    user: "root",
-    password: "root",
-    database: "bookstore"
-    ```
-
-## **애플리케이션 실행**
-
-### **개발 환경**
-
-```bash
-npm start
-```
-
-서버는 `http://localhost:3000` (또는 `.env` 파일에 지정된 포트)에서 시작됩니다.
-
-### **테스트**
-
-```bash
-npm test
-```
-
-## **API 문서**
-
-### **인증 (Authentication)**
-
-#### **신규 사용자 등록**
-
-```http
-POST /users/signup
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "password123",
-  "name": "John Doe"
-}
-```
-
-#### **로그인**
-
-```http
-POST /users/login
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
-```
-
-응답에는 `accessToken`과 `refreshToken`이 포함됩니다.
-
-#### **Access Token 갱신**
-
-```http
-POST /users/refresh-token
-Content-Type: application/json
-
-{
-  "refreshToken": "your_refresh_token"
-}
-```
-
-#### **로그아웃**
-
-```http
-POST /users/logout
-Authorization: Bearer <access_token>
-```
-
-### **도서 (Books)**
-
-#### **모든 도서 조회 (검색 및 필터링 포함)**
-
-```http
-GET /books?search=query&categoryId=1&page=1&limit=8
-```
-
-#### **신간 도서 조회**
-
-```http
-GET /books/new?categoryId=1&limit=4
-```
-
-#### **도서 상세 정보 조회**
-
-```http
-GET /books/:bookId
-Authorization: Bearer <access_token> (선택 사항)
-```
-
-#### **도서 '좋아요' 토글**
-
-```http
-POST /books/:bookId/like
-Authorization: Bearer <access_token>
-```
-
-### **카테고리 (Categories)**
-
-#### **모든 카테고리 조회**
-
-```http
-GET /categories
-```
-
-### **장바구니 (Shopping Cart)**
-
-#### **장바구니에 상품 추가**
-
-```http
-POST /carts
-Authorization: Bearer <access_token>
-Content-Type: application/json
-
-{
-  "bookId": 1,
-  "quantity": 2
-}
-```
-
-#### **장바구니 상품 조회**
-
-```http
-GET /carts
-Authorization: Bearer <access_token>
-```
-
-#### **장바구니 상품 수량 수정**
-
-```http
-PUT /carts/:cartItemId
-Authorization: Bearer <access_token>
-Content-Type: application/json
-
-{
-  "quantity": 3
-}
-```
-
-#### **장바구니 상품 삭제**
-
-```http
-DELETE /carts/:cartItemId
-Authorization: Bearer <access_token>
-```
-
-### **주문 (Orders)**
-
-#### **주문 생성**
-
-```http
-POST /orders
-Authorization: Bearer <access_token>
-Content-Type: application/json
-
-{
-  "deliveryInfo": {
-    "address": "123 Main St",
-    "phone": "010-1234-5678"
-  },
-  "cartItemIds": [1, 2, 3]
-}
-```
-
-#### **내 주문 목록 조회**
-
-```http
-GET /orders
-Authorization: Bearer <access_token>
-```
-
-#### **주문 상세 정보 조회**
-
-```http
-GET /orders/:orderId
-Authorization: Bearer <access_token>
-```
-
-#### **주문 상태 수정 (관리자 전용)**
-
-```http
-PUT /orders/:orderId/status
-Authorization: Bearer <admin_access_token>
-Content-Type: application/json
-
-{
-  "status": "shipped"
-}
-```
-
-### **리뷰 (Reviews)**
-
-#### **특정 도서의 리뷰 조회**
-
-```http
-GET /books/:bookId/reviews
-```
-
-#### **리뷰 추가**
-
-```http
-POST /books/:bookId/reviews
-Authorization: Bearer <access_token>
-Content-Type: application/json
-
-{
-  "rating": 5,
-  "content": "Great book!"
-}
-```
-
-#### **리뷰 수정**
-
-```http
-PUT /books/:bookId/reviews/:reviewId
-Authorization: Bearer <access_token>
-Content-Type: application/json
-
-{
-  "rating": 4,
-  "content": "Updated review"
-}
-```
-
-#### **리뷰 삭제**
-
-```http
-DELETE /books/:bookId/reviews/:reviewId
-Authorization: Bearer <access_token>
-```
-
-#### **리뷰 '좋아요' 토글**
-
-```http
-POST /books/:bookId/reviews/:reviewId/like
-Authorization: Bearer <access_token>
-```
-
-### **관리자 라우트 (Admin Routes)**
-
-#### **모든 사용자 조회 (관리자 전용)**
-
-```http
-GET /users
-Authorization: Bearer <admin_access_token>
-```
-
-#### **사용자 역할 수정 (관리자 전용)**
-
-```http
-PUT /users/:userId/role
-Authorization: Bearer <admin_access_token>
-Content-Type: application/json
-
-{
-  "role": "admin"
-}
-```
-
-#### **관리자 (Admin) - `인가(Authorization)` 적용 만들어야 할 것들**
-
-- **도서 등록** `ADMIN`
-  `POST /admin/books`
-- **도서 정보 수정** `ADMIN`
-  `PUT /admin/books/:bookId`
-- **도서 삭제** `ADMIN`
-  `DELETE /admin/books/:bookId`
-- **카테고리 추가/수정/삭제** `ADMIN`
-  `POST /admin/categories`, `PUT /admin/categories/:id`, `DELETE /admin/categories/:id`
-
-## **데이터베이스 스키마**
-
-애플리케이션은 다음과 같은 주요 테이블을 사용합니다:
-
-- **users**: 사용자 계정 및 인증 정보
-- **books**: 도서 카탈로그 및 상세 정보
-- **categories**: 계층적 도서 카테고리
-- **carts**: 장바구니 상품
-- **orders**: 주문 기록
-- **order_details**: 주문별 상세 항목
-- **reviews**: 도서 리뷰 및 평점
-- **book_likes**: 사용자의 '좋아요'한 도서
-- **review_likes**: '좋아요'한 리뷰
-- **refresh_tokens**: JWT 리프레시 토큰
-
-전체 스키마 정의는 `database.ddl.txt` 파일을 참고하세요.
-
-## **프로젝트 구조**
+## 📂 프로젝트 구조 (Project Structure)
 
 ```
 book_market/
-├── app.js                 # Express 애플리케이션 설정
-├── bin/
-│   └── www               # 서버 시작 스크립트
-├── config.js             # 설정 상수
-├── constants/            # 애플리케이션 상수
-├── database/
-│   └── connection/
-│       └── mariaDB.js   # 데이터베이스 커넥션 풀
-├── middleware/          # Express 미들웨어
-│   ├── authorize.middleware.js
-│   ├── authorizeAdmin.middleware.js
-│   ├── errorHandler.middleware.js
-│   └── validator.middleware.js
-├── modules/            # 비즈니스 로직 모듈
-│   ├── books/
-│   ├── carts/
-│   ├── categories/
-│   ├── orders/
-│   ├── reviews/
-│   └── users/
-├── routes/            # Express 라우트 핸들러
-├── tests/             # Jest 테스트 스위트
-├── utils/             # 유틸리티 함수
-└── package.json
+├── app.js                 # Express 애플리케이션 및 미들웨어 설정
+├── bin/www                # 서버 진입점
+├── modules/               # 도메인 기반 비즈니스 로직 (C-S-R 패턴)
+│   ├── books/             # 도서 및 좋아요 관리
+│   ├── carts/             # 장바구니 관리
+│   ├── orders/            # 주문 및 배송 관리
+│   ├── reviews/           # 리뷰 및 인터랙션
+│   └── users/             # 회원가입, 로그인 및 권한 관리
+├── middleware/            # 공통 인증/인가 및 에러 핸들링
+├── script/                # 만료 토큰 정리 등 배치 스크립트
+├── database/              # DB 커넥션 및 스키마 정의
+└── tests/                 # 기능별 Jest 테스트 수트
 ```
 
-## **보안 기능**
+## ⚙️ 시작하기 (Getting Started)
 
-- JWT 기반 인증
-- `bcrypt`를 이용한 비밀번호 해싱
-- 역할 기반 접근 제어 (RBAC)
-- `express-validator`를 이용한 입력값 유효성 검사
-- 파라미터화된 쿼리를 통한 SQL 인젝션 방지
-- CORS 지원
+### 1. MariaDB 컨테이너 실행
 
-## **에러 핸들링**
+별도 가이드를 참고하여 데이터베이스를 준비합니다.
+📄 [MariaDB Docker 배포 가이드](DOCKER_MARIADB.md)
 
-애플리케이션은 중앙 집중식 에러 핸들링 미들웨어를 포함하고 있으며, 다음 기능을 수행합니다:
+### 2. 환경 변수 설정
 
-- 유효성 검사 에러를 잡아 포맷팅
-- 인증 에러 처리
-- 의미 있는 에러 메시지 제공
-- 디버깅을 위한 에러 로깅
+`.env` 파일을 생성하고 아래 항목을 설정합니다.
 
-## **개발**
+```env
+PORT=3000
+JWT_SECRET=your_secret_key
+JWT_REFRESH_SECRET=your_refresh_secret_key
+JWT_EXPIRES_IN=1h
+JWT_REFRESH_EXPIRES_IN=7d
+```
 
-### **코드 구성**
-
-애플리케이션은 모듈식 아키텍처를 따릅니다:
-
-- **Controllers**: HTTP 요청과 응답을 처리
-- **Services**: 비즈니스 로직을 포함
-- **Repositories**: 데이터베이스 작업을 처리
-- **Middleware**: 컨트롤러에 도달하기 전 요청을 처리
-
-### **테스팅**
-
-테스트는 기능별로 구성되어 있습니다:
-
-- `tests/users.test.js` - 사용자 인증 및 권한 부여
-- `tests/books.test.js` - 도서 관리 및 '좋아요'
-- `tests/carts.test.js` - 장바구니 작업
-
-테스트 실행 명령어:
+### 3. 설치 및 실행
 
 ```bash
+# 의존성 설치
+npm install
+
+# 서버 실행
+npm start
+
+# 테스트 실행
 npm test
 ```
 
-## **기여하기 (Contributing)**
+## 📄 API Reference
 
-1.  리포지토리를 포크(Fork)합니다.
-2.  피처 브랜치를 생성합니다 (`git checkout -b feature/amazing-feature`).
-3.  변경 사항을 커밋합니다 (`git commit -m 'Add some amazing feature'`).
-4.  브랜치에 푸시합니다 (`git push origin feature/amazing-feature`).
-5.  Pull Request를 엽니다.
+기존 API 상세 정보는 [README_OLD.md](README_OLD.md)의 API 문서 섹션을 참고하세요.
 
-## **라이선스**
+## 📄 라이선스 (License)
 
-이 프로젝트는 비공개이며 독점적입니다.
-
-## **작성자**
-
-JHParrrk
-
-## **지원**
-
-이슈나 질문이 있는 경우, GitHub 리포지토리에서 이슈를 열어주세요.
+본 프로젝트는 MIT License를 따릅니다.
