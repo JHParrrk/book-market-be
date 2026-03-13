@@ -43,6 +43,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 // → public 폴더 안의 파일을 정적 파일(이미지, CSS 등)로 제공
 
+// favicon.ico 요청으로 인한 404 에러 방지 (파일이 없을 경우)
+app.get("/favicon.ico", (req, res) => res.status(204).end());
+
 // 라우터 설정
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
