@@ -21,7 +21,11 @@ var app = express();
 
 app.use(
   cors({
-    origin: ["http://192.168.0.10", "http://192.168.0.12"], // 서브 및 메인 컴퓨터 허용
+    origin: [
+      "http://192.168.0.10",
+      "http://192.168.0.12",
+      "http://localhost:4000",
+    ], // 서브 및 메인 컴퓨터 허용
     methods: ["GET", "POST", "PUT", "DELETE"], // 허용할 HTTP 메서드
     credentials: true, // 쿠키 허용 (옵션)
   }),
