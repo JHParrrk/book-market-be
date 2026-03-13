@@ -20,11 +20,11 @@ const CONFIG = {
   },
   // 서브 컴퓨터 환경 설정
   sub: {
-    host: process.env.PROD_DB_HOST,
-    port: process.env.PROD_DB_PORT,
-    user: process.env.PROD_DB_USER,
-    password: process.env.PROD_DB_PASSWORD,
-    database: process.env.PROD_DB_DATABASE,
+    host: process.env.PROD_DB_HOST_BY_LAN,
+    port: process.env.PROD_DB_PORT_BY_LAN,
+    user: process.env.PROD_DB_USER_BY_LAN,
+    password: process.env.PROD_DB_PASSWORD_BY_LAN,
+    database: process.env.PROD_DB_DATABASE_BY_LAN,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
