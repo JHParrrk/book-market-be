@@ -22,6 +22,21 @@ exports.getAllReviews = async ({ page, limit }) => {
   return { reviews, pagination };
 };
 
+// [신규] 내 리뷰 목록 조회
+exports.getMyReviews = async (userId, { page, limit }) => {
+  const offset = (page - 1) * limit;
+  const reviews = await reviewRepository.findReviewsByUserId(userId, limit, offset);
+  const totalCount = await reviewRepository.countReviewsByUserId(userId);
+
+  const pagination = {
+    currentPage: parseInt(page),
+    totalCount: totalCount,
+    totalPages: Math.ceil(totalCount / limit),
+  };
+
+  return { reviews, pagination };
+};
+
 exports.addReview = async (reviewData) => {
   const hasPurchased = await reviewRepository.checkPurchaseHistory(
     reviewData.userId,

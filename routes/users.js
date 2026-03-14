@@ -5,6 +5,7 @@ const userController = require("../modules/users/user.controller");
 const { authenticateJWT } = require("../middleware/authorize.middleware");
 const { authorizeAdmin } = require("../middleware/authorizeAdmin.middleware"); // [추가]
 const validate = require("../middleware/validator.middleware");
+const reviewController = require("../modules/reviews/review.controller");
 
 // --- 인증이 필요 없는 라우트 ---
 // 회원가입
@@ -61,6 +62,9 @@ router.put(
 
 // 인증된 사용자 본인 정보 조회
 router.get("/me", userController.getMe);
+
+// [신규] 내 리뷰 목록 조회
+router.get("/me/reviews", reviewController.getMyReviews);
 
 // 개별 회원 정보 조회, 수정, 탈퇴 (본인만 가능)
 router

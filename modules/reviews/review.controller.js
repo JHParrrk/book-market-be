@@ -37,6 +37,23 @@ exports.getReviewsByBook = async (req, res, next) => {
   }
 };
 
+// [신규] 내 리뷰 목록 조회
+exports.getMyReviews = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const page = safeParseInt(req.query.page, 1);
+    const limit = safeParseInt(req.query.limit, 5);
+
+    const { reviews, pagination } = await reviewService.getMyReviews(userId, {
+      page,
+      limit,
+    });
+    res.status(200).json({ reviews, pagination });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.addReview = async (req, res, next) => {
   try {
     const { bookId } = req.params;
