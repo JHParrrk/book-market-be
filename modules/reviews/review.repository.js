@@ -6,7 +6,7 @@ exports.findReviewsByBookId = async ({ bookId, userId, page, limit }) => {
   const offset = (page - 1) * limit;
   const sql = `
     SELECT 
-        r.id, r.content, r.rating, r.created_at,
+        r.id, r.user_id, r.content, r.rating, r.created_at,
         u.name AS author_name,
         (SELECT COUNT(*) FROM review_likes rl WHERE rl.review_id = r.id) AS likes_count,
         EXISTS(SELECT 1 FROM review_likes rl WHERE rl.review_id = r.id AND rl.user_id = ?) AS is_liked
@@ -25,7 +25,7 @@ exports.findAllReviews = async ({ page, limit }) => {
   const offset = (page - 1) * limit;
   const sql = `
     SELECT 
-        r.id, r.content, r.rating, r.created_at,
+        r.id, r.user_id, r.content, r.rating, r.created_at,
         u.name AS author_name,
         b.title AS book_title,
         b.id AS book_id,
