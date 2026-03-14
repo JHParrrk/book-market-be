@@ -25,19 +25,29 @@ exports.getAllReviews = async ({ page, limit }) => {
 exports.addReview = async (reviewData) => {
   const hasPurchased = await reviewRepository.checkPurchaseHistory(
     reviewData.userId,
-    reviewData.bookId
+    reviewData.bookId,
   );
   if (!hasPurchased) {
     throw new CustomError(
       FORBIDDEN.statusCode,
-      "도서를 구매한 사용자만 리뷰를 작성할 수 있습니다."
+      "도서를 구매한 사용자만 리뷰를 작성할 수 있습니다.",
     );
   }
 
-  const result = await reviewRepository.create(reviewData);
-  // [고도화] 리뷰 추가 후 도서의 평균 평점 업데이트
-  await reviewRepository.updateBookRating(reviewData.bookId);
-  return result;
+  try {
+    const result = await reviewRepository.create(reviewData);
+    // [고도화] 리뷰 추가 후 도서의 평균 평점 업데이트
+    await reviewRepository.updateBookRating(reviewData.bookId);
+    return result;
+  } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      throw new CustomError(
+        409,
+        "이미 해당 도서에 대한 리뷰를 작성하셨습니다.",
+      );
+    }
+    throw err;
+  }
 };
 
 exports.updateReview = async (reviewData) => {
@@ -54,7 +64,7 @@ exports.updateReview = async (reviewData) => {
   if (review.user_id !== userId) {
     throw new CustomError(
       FORBIDDEN.statusCode,
-      "자신이 작성한 리뷰만 수정할 수 있습니다."
+      "자신이 작성한 리뷰만 수정할 수 있습니다.",
     );
   }
 
@@ -77,7 +87,7 @@ exports.deleteReview = async ({ bookId, reviewId, user }) => {
   if (review.user_id !== user.id && user.role !== "admin") {
     throw new CustomError(
       FORBIDDEN.statusCode,
-      "리뷰를 삭제할 권한이 없습니다."
+      "리뷰를 삭제할 권한이 없습니다.",
     );
   }
 
