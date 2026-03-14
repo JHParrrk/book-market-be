@@ -140,3 +140,29 @@ exports.delete = (reviewId) => {
   const sql = "DELETE FROM reviews WHERE id = ?";
   return dbPool.query(sql, [reviewId]);
 };
+
+// [신규] 특정 사용자가 작성한 리뷰 목록 조회
+exports.findReviewsByUserId = async (userId, limit, offset) => {
+  const sql = `
+    SELECT 
+        r.id, r.content, r.rating, r.created_at,
+        u.name AS author_name,
+        b.title AS book_title,
+        b.id AS book_id
+    FROM reviews r
+    JOIN users u ON r.user_id = u.id
+    JOIN books b ON r.book_id = b.id
+    WHERE r.user_id = ?
+    ORDER BY r.created_at DESC
+    LIMIT ? OFFSET ?
+  `;
+  const [reviews] = await dbPool.query(sql, [userId, limit, offset]);
+  return reviews;
+};
+
+// [신규] 특정 사용자가 작성한 전체 리뷰 개수 조회
+exports.countReviewsByUserId = async (userId) => {
+  const sql = `SELECT COUNT(*) as totalCount FROM reviews WHERE user_id = ?`;
+  const [result] = await dbPool.query(sql, [userId]);
+  return result[0].totalCount;
+};

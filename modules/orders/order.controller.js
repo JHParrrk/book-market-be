@@ -12,7 +12,7 @@ exports.createOrder = async (req, res, next) => {
     if (!use_default_address && !delivery_info) {
       throw new CustomError(
         BAD_REQUEST.statusCode,
-        "배송지 정보가 필요합니다."
+        "배송지 정보가 필요합니다.",
       );
     }
     if (
@@ -22,7 +22,7 @@ exports.createOrder = async (req, res, next) => {
     ) {
       throw new CustomError(
         BAD_REQUEST.statusCode,
-        "주문할 상품을 선택해주세요."
+        "주문할 상품을 선택해주세요.",
       );
     }
     const result = await orderService.createOrder({
@@ -61,6 +61,44 @@ exports.getOrderById = async (req, res, next) => {
 };
 
 /**
+ * [신규] 결제대기 상태 주문 취소 핸들러
+ */
+exports.cancelOrder = async (req, res, next) => {
+  try {
+    const { orderId } = req.params;
+    const userId = req.user.id;
+
+    await orderService.cancelOrder({ orderId, userId });
+    res.status(200).json({ message: "주문이 성공적으로 취소되었습니다." });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * [신규] 카드 결제 시뮬레이션 핸들러
+ */
+exports.processPayment = async (req, res, next) => {
+  try {
+    const { orderId } = req.params;
+    const userId = req.user.id;
+    const { cardNumber, cvv } = req.body;
+
+    if (!cardNumber || !cvv) {
+      throw new CustomError(
+        BAD_REQUEST.statusCode,
+        "카드 번호와 CVV를 모두 입력해주세요.",
+      );
+    }
+
+    await orderService.processPayment({ orderId, userId, cardNumber, cvv });
+    res.status(200).json({ message: "결제가 성공적으로 완료되었습니다." });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * [신규] 주문 상태 변경 핸들러
  */
 exports.updateOrderStatus = async (req, res, next) => {
@@ -72,7 +110,7 @@ exports.updateOrderStatus = async (req, res, next) => {
     if (!Object.values(ORDER_STATUS).includes(status)) {
       throw new CustomError(
         BAD_REQUEST.statusCode,
-        "유효하지 않은 주문 상태입니다."
+        "유효하지 않은 주문 상태입니다.",
       );
     }
 
@@ -80,7 +118,7 @@ exports.updateOrderStatus = async (req, res, next) => {
     if (req.user.role !== "admin") {
       throw new CustomError(
         FORBIDDEN.statusCode,
-        "주문 상태를 변경할 권한이 없습니다."
+        "주문 상태를 변경할 권한이 없습니다.",
       );
     }
 

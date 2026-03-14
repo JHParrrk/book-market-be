@@ -13,13 +13,23 @@ router.get("/", authenticateJWT, orderController.getMyOrders);
 // 주문 상세 조회
 router.get("/:orderId", authenticateJWT, orderController.getOrderById);
 
+// [신규] 결제 대기 중인 주문 취소
+router.post("/:orderId/cancel", authenticateJWT, orderController.cancelOrder);
+
+// [신규] 카드 결제 시뮬레이션
+router.post(
+  "/:orderId/payment",
+  authenticateJWT,
+  orderController.processPayment,
+);
+
 // [신규] 주문 상태 변경 (관리자용)
 // authenticateJWT -> authorizeAdmin 순서로 미들웨어를 실행합니다.
 router.put(
   "/:orderId/status",
   authenticateJWT,
   authorizeAdmin,
-  orderController.updateOrderStatus
+  orderController.updateOrderStatus,
 );
 
 module.exports = router;

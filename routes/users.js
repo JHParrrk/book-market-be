@@ -19,7 +19,7 @@ router.post(
     body("name").notEmpty().withMessage("이름을 입력하세요."),
     validate,
   ],
-  userController.signup
+  userController.signup,
 );
 
 // 로그인
@@ -30,7 +30,7 @@ router.post(
     body("password").notEmpty().withMessage("비밀번호를 입력하세요."),
     validate,
   ],
-  userController.login
+  userController.login,
 );
 
 // 액세스 토큰 재발급 (인증 미들웨어 불필요)
@@ -57,7 +57,7 @@ router.put(
       .withMessage("유효한 역할('member' 또는 'admin')을 입력하세요."),
     validate,
   ],
-  userController.updateUserRole
+  userController.updateUserRole,
 );
 
 // 인증된 사용자 본인 정보 조회
@@ -74,7 +74,7 @@ router
       param("id").isInt().withMessage("유효한 사용자 ID를 입력하세요."),
       validate,
     ],
-    userController.getUserById
+    userController.getUserById,
   )
   .put(
     [
@@ -85,14 +85,14 @@ router
         .withMessage("비밀번호는 최소 4자 이상이어야 합니다."),
       validate,
     ],
-    userController.updateUser
+    userController.updateUser,
   )
   .delete(
     [
       param("id").isInt().withMessage("유효한 사용자 ID를 입력하세요."),
       validate,
     ],
-    userController.deleteUser
+    userController.deleteUser,
   );
 
 module.exports = router;
